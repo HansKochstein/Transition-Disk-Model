@@ -1,5 +1,8 @@
 # all .png should be irgnored by git
 **/*.png
+**/*.mp4
+**/*.pdf
+**/*.jpg
 
 # ignore all .inp and .out files in all directories and subdirectories
 **/*.inp
