@@ -16,6 +16,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 #   Physical constants in cgs unit
 # ----------------------------------
 
+
 # Define useful constants.  
 # Note that cgs units are commonly used in astronomy.
 # Length is measured in [cm], mass is measured in [g], and time is measured in [s].
