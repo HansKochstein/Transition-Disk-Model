@@ -7,3 +7,4 @@
 # ignore all .inp and .out files in all directories and subdirectories
 **/*.inp
 **/*.out
+*.dat
