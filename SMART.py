@@ -284,7 +284,7 @@ class DiskModelGUI:
         sigmad0   = float(self.sigmad0.get())
         ringcau1  = float(self.ringcau1.get())
         elevD     = float(self.elevD.get())
-        rotaD1    = float(self.rotaD1.get())
+        rotaD1    = float(self.rotaD1.get()) - 90  # Subtract 90 to convert to the correct angle
 
         #TESTING
         INNERASSYMETRIC = False 
@@ -968,7 +968,7 @@ class DiskModelGUI:
         if  self.scattering_var.get() == 1:                  # Scattering
             interpolation  = 'bicubic'
             cmap           = 'nipy_spectral'
-            title          = f'Polarized Intensity of {float(wavelength)}$\mu m$' 
+            title          = f'PI-Image of {float(wavelength)}$\mu m$' 
 
             simu_data = data[:,:].T
             simu_data = np.where(simu_data<10**(-15),10**-15 , simu_data.copy())   # cutting-off noise 
@@ -1038,7 +1038,7 @@ class DiskModelGUI:
         if self.scattering_var.get() == 1:                  # Scattering
             interpolation  = 'bicubic'
             cmap           = 'nipy_spectral'
-            title          = f'Polarized Intensity of {float(wavelength)}$\mu m$' 
+            title          = f'PI-Image of {float(wavelength)}$\mu m$' 
 
             simu_data = data[:,:].T
             simu_data = np.where(simu_data<10**(-15),10**-15 , simu_data.copy())   # cutting-off noise
@@ -1130,7 +1130,8 @@ class DiskModelGUI:
                     ax.set_title(fig.axes[0].get_title(), fontsize=8)
                     ax.set_xlabel(fig.axes[0].get_xlabel(), fontsize=6)
                     ax.set_ylabel(fig.axes[0].get_ylabel(), fontsize=6)
-                    
+                    ax.set_text(x=-110, y=-110, s=f"{i+1}", fontsize=5, bbox=dict(facecolor='white', alpha=1), ha='center')
+                                
                     # Get the colorbar from the original figure and add it to the subplot
                     cbar = plt.colorbar(im, location='right')
                     cbar.ax.tick_params(labelsize=7)
