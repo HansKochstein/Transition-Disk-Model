@@ -186,7 +186,7 @@ class DiskModelGUI:
                 canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
                 self.plot_canvases.append(canvas)
 
-    '''Create Frame for input parameters'''
+    '''Create Frames for input parameters'''
 
     # Create a frame for grid parameters
     def create_grid_frame(self,parent_frame):
@@ -228,7 +228,7 @@ class DiskModelGUI:
         outer_disk_frame.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
         # Input labels and entries (example parameters)
-        labels = ["Peak Surface Density [g/cm^2]","Ring distance [au]","Radial width [au]","Rotation [deg]","Asymmetry","Azimuthal width","Ellipse","Semi-major axis","Eccentricity"]
+        labels = ["Peak Surface Density [g/cm^2]","Ring distance [au]","Radial width [au]","Rotation [deg]","Asymmetry","Azimuthal width","Ellipse","Semi-major axis [au]","Eccentricity "]
         variable_names = ["sigmadc2","ringcau2","ringwau2","rotaD2","OUTERASSYMETRIC","azimwid2","ELLIPSE","a_semi","e"]
         defaults = [10, 88, 9, 95, True, 0.75, True, 88, 0.2]
 
@@ -431,7 +431,7 @@ class DiskModelGUI:
         ringw2  = ringwau2*au                   # Radial width of the ring, Convert [au] to [cm]
 
         if OUTERASSYMETRIC==True:
-            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-1.05*pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
+            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
         else:
             sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0)                                     # radial surface density profile for ring [g/cm^2]
 
@@ -775,7 +775,7 @@ class DiskModelGUI:
         ringw2  = ringwau2*au                   # Radial width of the ring, Convert [au] to [cm]
 
         if OUTERASSYMETRIC==True:
-            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-1.05*pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
+            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
         else:
             sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0)                                     # radial surface density profile for ring [g/cm^2]
 
@@ -987,7 +987,7 @@ class DiskModelGUI:
             ax = fig.add_axes([0.2, 0.15, 0.75, 0.75])  # Adjust the position of the plot within the figure
             im = ax.imshow(nor_simu_data,interpolation=interpolation,cmap=cmap,norm=None,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
             ax.tick_params(axis='both', which='major', labelsize=8)
-            ax.set_title(title, fontsize=10)
+            ax.set_title(title, fontsize=9)
             ax.set_xlabel('X [AU]', fontsize=6)
             ax.set_ylabel('Y [AU]', fontsize=6)
             ax.text(x=0, y=-110, s=f"Inclination: {inc}°, Position Angle: {pos}°", fontsize=5, bbox=dict(facecolor='white', alpha=1), ha='center')
@@ -1011,7 +1011,7 @@ class DiskModelGUI:
             ax = fig.add_axes([0.18, 0.15, 0.75, 0.75])  # Adjust the position of the plot within the figure
             im = ax.imshow(simu_data_org,interpolation=interpolation,cmap=cmap,norm=norm,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
             ax.tick_params(axis='both', which='major', labelsize=7)
-            ax.set_title(title, fontsize=10)
+            ax.set_title(title, fontsize=9)
             ax.set_xlabel('X [AU]', fontsize=6)
             ax.set_ylabel('Y [AU]', fontsize=6)
             ax.text(x=0, y=-155, s=f"Inclination: {inc}°, Position Angle: {pos}°", fontsize=5, bbox=dict(facecolor='white', alpha=1), ha='center')
@@ -1053,7 +1053,7 @@ class DiskModelGUI:
                 nor_simu_data = simu_data / np.nanmax(test, axis=1)[100]     # normalization of image data  
 
             fig = plt.figure(figsize=(8, 6))
-            ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])  # Adjust the position of the plot within the figure
+            ax = fig.add_axes([0.1, 0.11, 0.8, 0.8])  # Adjust the position of the plot within the figure
             im = ax.imshow(nor_simu_data,interpolation=interpolation,cmap=cmap,norm=None,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
             ax.tick_params(axis='both', which='major', labelsize=8)
             ax.set_title(title, fontsize=10)
@@ -1080,17 +1080,16 @@ class DiskModelGUI:
 
             # Plotting the image
             fig = plt.figure(figsize=(8, 6))
-            ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])  # Adjust the position of the plot within the figure
+            ax = fig.add_axes([0.1, 0.11, 0.8, 0.8])  # Adjust the position of the plot within the figure
             im = ax.imshow(simu_data_org,interpolation=interpolation,cmap=cmap,norm=norm,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
             ax.tick_params(axis='both', which='major', labelsize=8)
-            ax.set_title(title, fontsize=10)
+            ax.set_title(title, fontsize=15)
             ax.set_xlabel('X [AU]', fontsize=8)
             ax.set_ylabel('Y [AU]', fontsize=8)
             ax.text(x=0, y=-120, s=f"Inclination: {inc}°, Position Angle: {pos}°", fontsize=7, bbox=dict(facecolor='white', alpha=1), ha='center')
-            plt.subplots_adjust(right=0.9)
             cbar=plt.colorbar(im, location='right',label='Jy/beam')
             cbar.ax.tick_params(labelsize=8)
-            cbar.ax.set_title('Jy/beam', fontsize=7, y=-0.15)  # Label below the colorbar
+            cbar.ax.set_title('Jy/beam', fontsize=7, y=-0.10)  # Label below the colorbar
             # tools.trace_outer_ring(simu_data_org,ax=None, grid_x= 2, grid_y=0,int_threshold=0.2)  
 
         # Place plot in the GUI
@@ -1108,7 +1107,7 @@ class DiskModelGUI:
 
         if self.single_plot_var.get() == 0:     # 3x3 grid mode
             # Create a new figure to hold all the subplots
-            grid_fig = plt.figure(figsize=(12, 10))  # Adjust size as needed
+            grid_fig = plt.figure(figsize=(12, 12))  # Adjust size as needed
             # plot_index = int(self.index.get())
 
             # Iterate through the plot canvases and add them to the grid figure
@@ -1117,20 +1116,28 @@ class DiskModelGUI:
 
                 ax = grid_fig.add_subplot(3, 3, i+1)
                 if fig.axes and fig.axes[0].images:  # Check if axes and images exist
+                    cmap = fig.axes[0].images[0].get_cmap()
+                    norm = fig.axes[0].images[0].norm
+
                     im = ax.imshow(fig.axes[0].images[0].get_array(), origin='lower',
                             cmap=fig.axes[0].images[0].get_cmap(),interpolation='bicubic',
+                            norm=norm,
                             extent=fig.axes[0].images[0].get_extent())  # Include extent for correct aspect ratio
+
                     ax.tick_params(axis='both', which='major', labelsize=5)
 
                     # Copy title, labels, and colorbar from the original figure
                     ax.set_title(fig.axes[0].get_title(), fontsize=8)
                     ax.set_xlabel(fig.axes[0].get_xlabel(), fontsize=6)
                     ax.set_ylabel(fig.axes[0].get_ylabel(), fontsize=6)
-
+                    
                     # Get the colorbar from the original figure and add it to the subplot
-                    cbar = plt.colorbar(im, location='right').ax.tick_params(labelsize=5)
-                    if fig.axes[0].images[0].get_cmap() == 'magma':
-                        cbar.ax.set_title('Jy/beam', fontsize=7, y=-0.15)
+                    cbar = plt.colorbar(im, location='right')
+                    cbar.ax.tick_params(labelsize=7)
+                    
+                    if cmap.name == 'magma':
+                        # Proceed with the code
+                        cbar.ax.set_title('Jy/beam', fontsize=6, y=-0.15)
                 else:
                     # Plot a white canvas if the subplot is empty
                     ax.axis('off')
