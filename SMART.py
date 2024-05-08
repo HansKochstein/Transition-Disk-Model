@@ -868,9 +868,9 @@ class DiskModelGUI:
             f.write('2               Format number of this file\n')
             f.write('1               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('1              Way in which this dust species is read\n')
+            f.write('1               Way in which this dust species is read\n')
             f.write('0               0=Thermal grain\n')
-            f.write('silicate         Extension of name of dustkappa_***.inp file\n')
+            f.write('pyrmg701000         Extension of name of dustkappa_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
         #
         # Write the radmc3d.inp control file
@@ -1130,7 +1130,7 @@ class DiskModelGUI:
                     ax.set_title(fig.axes[0].get_title(), fontsize=8)
                     ax.set_xlabel(fig.axes[0].get_xlabel(), fontsize=6)
                     ax.set_ylabel(fig.axes[0].get_ylabel(), fontsize=6)
-                    ax.set_text(x=-110, y=-110, s=f"{i+1}", fontsize=5, bbox=dict(facecolor='white', alpha=1), ha='center')
+                    # ax.set_text(x=-110, y=-110, s=f"{i+1}", fontsize=5, bbox=dict(facecolor='white', alpha=1), ha='center')
                                 
                     # Get the colorbar from the original figure and add it to the subplot
                     cbar = plt.colorbar(im, location='right')
