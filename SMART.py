@@ -157,7 +157,33 @@ class DiskModelGUI:
 
          # Add a Save button
         save_button = tk.Button(self.output_frame, text="Save Image", command=self.save_plot)
-        save_button.grid(row=7, column=4, columnspan=1, pady=10, sticky="n")  # Place at the bottom of the plot frame
+        save_button.grid(row=7, column=4, columnspan=1, pady=10, sticky="ns")  # Place at the bottom of the plot frame
+
+        # Add tracking button 
+        self.track_var = tk.IntVar(value=0)
+        track_checkbutton = tk.Checkbutton(self.output_frame, text="Tracking peak intensity", variable=self.track_var)
+        track_checkbutton.grid(row=8, column=0, columnspan=1, pady=10, sticky="n")  # Place at the bottom of the plot frame
+
+        #Add tracking threshold entry
+        track_threshold = tk.Label(self.output_frame, text='Tracking threshold:')
+        track_threshold.grid(row=8, column=2, columnspan=1, pady=10, sticky="w")  # Place at the bottom of the plot frame     
+        entry = tk.Entry(self.output_frame, width=5, justify='center')
+        entry.insert(0, str(0.2))
+        entry.grid(row=8, column=2, padx=2, sticky="e")  
+        setattr(self, 'threshold_var', entry)
+
+        # Define the options for the dropdown menu
+        options = ['nipy_spectral', 'magma', 'Oranges']
+
+        # Create a variable to store the selected option
+        self.selected_cmap = tk.StringVar()
+        self.selected_cmap.set(options[0])  # set the default option
+
+        # Create the dropdown menu
+        dropdown = tk.OptionMenu(self.output_frame, self.selected_cmap, *options)
+        dropdown.grid(row=8, column=4, padx=10, sticky="ns")  # adjust the row and column as needed
+
+
 
 
     def update_plots(self):
@@ -191,7 +217,7 @@ class DiskModelGUI:
     # Create a frame for grid parameters
     def create_grid_frame(self,parent_frame):
         grid_frame = tk.LabelFrame(parent_frame, text="Grid Parameters")
-        grid_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        grid_frame.grid(row=1, column=0, padx=5, pady=5, sticky="w")
 
         # Input labels and entries
         labels = ["Radial grid number", "Azimuthal grid number", "Polar grid number", "Grid inner radius [au]", "Grid outer radius [au]", "Photon number"]
@@ -200,32 +226,32 @@ class DiskModelGUI:
 
         for i, label in enumerate(labels):
             tk.Label(grid_frame, text=label).grid(row=i, column=0, sticky="w")
-            entry = tk.Entry(grid_frame)
+            entry = tk.Entry(grid_frame, width=12, justify='center')
             entry.insert(0, str(defaults[i]))
-            entry.grid(row=i, column=1, padx=5)
+            entry.grid(row=i, column=1, padx=5, sticky="e")
             setattr(self, variable_names[i], entry)
 
     # Create a frame for inner disk parameters
     def create_inner_disk_frame(self,parent_frame):
         inner_disk_frame = tk.LabelFrame(parent_frame, text="Inner Disk Parameters")
-        inner_disk_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        inner_disk_frame.grid(row=2, column=0, padx=5, pady=5, sticky="w")
 
         # Input labels and entries
         labels = ["Peak Surface Denisty [g/cm^2]", "Ring distance [au]", "Radial width [au]","Inclination [deg]","Rotation [deg]"]
         variable_names = ["sigmad0", "ringcau1", "ringwau1","elevD","rotaD1",]
-        defaults = [0.1, 7, 1, 20, 210]
+        defaults = [0.1, 7, 1, 20, 300]
 
         for i, label in enumerate(labels):
             tk.Label(inner_disk_frame, text=label).grid(row=i, column=0, sticky="w")
-            entry = tk.Entry(inner_disk_frame)
+            entry = tk.Entry(inner_disk_frame, width=12, justify='center')
             entry.insert(0, str(defaults[i]))
-            entry.grid(row=i, column=1, padx=5)
+            entry.grid(row=i, column=1, padx=5,sticky="e")
             setattr(self, variable_names[i], entry)  # Store the Entry widget
 
     # Create a frame for outer disk parameters        
     def create_outer_disk_frame(self,parent_frame):
         outer_disk_frame = tk.LabelFrame(parent_frame, text="Outer Disk Parameters")
-        outer_disk_frame.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
+        outer_disk_frame.grid(row=3, column=0, padx=5, pady=5, sticky="w")
 
         # Input labels and entries (example parameters)
         labels = ["Peak Surface Density [g/cm^2]","Ring distance [au]","Radial width [au]","Rotation [deg]","Asymmetry","Azimuthal width","Ellipse","Semi-major axis [au]","Eccentricity "]
@@ -243,23 +269,23 @@ class DiskModelGUI:
                 setattr(self, variable_names[i], var)  # Store the BooleanVar 
             else:
                 # Create an entry for other parameters
-                entry = tk.Entry(outer_disk_frame)
+                entry = tk.Entry(outer_disk_frame, width=12, justify='center')
                 entry.insert(0, str(defaults[i]))
-                entry.grid(row=i, column=1, padx=5)
+                entry.grid(row=i, column=1, padx=5, sticky="e")
                 setattr(self, variable_names[i], entry)  # Store the Entry widget
     
     # Function to create the plot parameter frame
     def create_plot_para_frame(self, parent_frame):
         plot_para = tk.LabelFrame(parent_frame, text="Image Parameter")
-        plot_para.grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
+        plot_para.grid(row=4, column=0, padx=5, pady=5, sticky="w")
         labels = ['Wavelength [um]', 'Inclination [deg]', 'Position Angle [deg]', 'Index [0-8]']
         variable_names = ['wavelength', 'incl_value', 'posang_value','index']
         defaults = [2.2, 50, 7.4, 0]
         for i, label in enumerate(labels):
             tk.Label(plot_para, text=label).grid(row=i, column=0, sticky="w")
-            entry = tk.Entry(plot_para)
+            entry = tk.Entry(plot_para, width=12, justify='center')
             entry.insert(0, str(defaults[i]))
-            entry.grid(row=i, column=1, padx=5)
+            entry.grid(row=i, column=1, padx=5, sticky="e")
             setattr(self, variable_names[i], entry)  # Store the Entry widget
 
 
@@ -967,7 +993,7 @@ class DiskModelGUI:
         
         if  self.scattering_var.get() == 1:                  # Scattering
             interpolation  = 'bicubic'
-            cmap           = 'nipy_spectral'
+            cmap           = self.selectted_cmap.get()
             title          = f'PI-Image of {float(wavelength)}$\mu m$' 
 
             simu_data = data[:,:].T
@@ -1037,7 +1063,7 @@ class DiskModelGUI:
         
         if self.scattering_var.get() == 1:                  # Scattering
             interpolation  = 'bicubic'
-            cmap           = 'nipy_spectral'
+            cmap           = self.selected_cmap.get()
             title          = f'PI-Image of {float(wavelength)}$\mu m$' 
 
             simu_data = data[:,:].T
@@ -1046,11 +1072,11 @@ class DiskModelGUI:
             if self.mask_var.get() == 1:
                 simu_data = tools.circular_mask(simu_data, radius=23)  # masking image only if checkbox is checked
                 nor_simu_data = simu_data / np.max(simu_data, axis=1)[100]     # normalization of image data 
-
             else:
                 test = simu_data.copy()
                 test[100, 80:120] = np.nan
                 nor_simu_data = simu_data / np.nanmax(test, axis=1)[100]     # normalization of image data  
+
 
             fig = plt.figure(figsize=(8, 6))
             ax = fig.add_axes([0.1, 0.11, 0.8, 0.8])  # Adjust the position of the plot within the figure
@@ -1065,14 +1091,16 @@ class DiskModelGUI:
 
             cbar=plt.colorbar(im, location='right')
             cbar.ax.tick_params(labelsize=8)
-            tools.trace_outer_ring(nor_simu_data,ax=None, grid_x= 2, grid_y=0,int_threshold=0.2)
+
+            if self.track_var.get() == 1:
+                tools.trace_outer_ring(nor_simu_data,ax=None, grid_x= 2, grid_y=0,int_threshold=float(self.threshold_var.get()))
         
         else:                                   # Thermal emission
             from matplotlib.colors import LogNorm
             intmax         =  np.max(data)            # maximum value
             intmin         =  np.max(data)*0.01       # 1% of the maximum value
             interpolation  = 'bicubic'
-            cmap           = 'magma'
+            cmap           =  self.selected_cmap.get()
             title          = f'Spectral irradiance of {float(wavelength)}$\mu m$'
             norm=LogNorm(vmin=intmin, vmax=intmax)
             #norm=None
