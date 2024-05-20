@@ -10,6 +10,7 @@ import os
 import tools
 import threading
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # ----------------------------------
 #   Physical constants in cgs unit
@@ -111,9 +112,6 @@ class DiskModelGUI:
         # self.output_text = tk.Text(right_frame, wrap=tk.WORD)  
         # self.output_text.grid(row=0, column=0, sticky="nsew")
 
-        self.loading_label = tk.Label(left_frame, text="Please Input Parameters", font=("Courier", 12))
-        self.loading_label.grid(row=5, column=0, sticky="nsew")
-
         # Store output_frame as an attribute
         self.output_frame = right_frame
         self.input_frame  = left_frame
@@ -133,11 +131,11 @@ class DiskModelGUI:
 
         # Create abort/close button
         abort_button = tk.Button(self.input_frame, text="Close", command=self.abort_and_close)
-        abort_button.grid(row=6, column=0,columnspan=2, pady=10, sticky="e")  # Place next to loading label
+        abort_button.grid(row=5, column=0,columnspan=2, pady=10, sticky="e")  # Place next to loading label
 
         # Create button to run simulation
         button = tk.Button(self.input_frame, text="Run Simulation", command=self.update_mode)
-        button.grid(row=6, column=0, columnspan=2, pady=10, sticky='w')
+        button.grid(row=5, column=0, columnspan=2, pady=10, sticky='w')
 
         # Create a Checkbutton to toggle between scattering and thermal re-emission of starlight by dust grains
         self.scattering_var = tk.IntVar(value=1)  # This will hold the state of the checkbox
@@ -174,16 +172,32 @@ class DiskModelGUI:
 
         # Define the options for the dropdown menu
         options = ['nipy_spectral', 'magma', 'Oranges']
-
         # Create a variable to store the selected option
         self.selected_cmap = tk.StringVar()
         self.selected_cmap.set(options[0])  # set the default option
-
         # Create the dropdown menu
         dropdown = tk.OptionMenu(self.output_frame, self.selected_cmap, *options)
         dropdown.grid(row=8, column=4, padx=10, sticky="ns")  # adjust the row and column as needed
 
+        #Add Image size entry
+        image_size = tk.Label(self.output_frame, text='Image size [AU]:')
+        image_size.grid(row=9, column=0, columnspan=1, pady=10, sticky="w")  # Place at the bottom of the plot frame
+        entry = tk.Entry(self.output_frame, width=5, justify='center')
+        entry.insert(0, str(258))
+        entry.grid(row=9, column=0, padx=2, sticky="e")
+        setattr(self, 'imagesize', entry)
 
+        #Add Radius masking radius entry
+        mask_radius = tk.Label(self.output_frame, text='Masking radius:')
+        mask_radius.grid(row=9, column=2, columnspan=1, pady=10, sticky="w")  # Place at the bottom of the plot frame
+        entry = tk.Entry(self.output_frame, width=5, justify='center')
+        entry.insert(0, str(25))
+        entry.grid(row=9, column=2, padx=2, sticky="e")
+        setattr(self, 'mask_radius', entry)
+
+
+        self.loading_label = tk.Label(self.output_frame, text="Input Parameters", font=("Courier", 8))
+        self.loading_label.grid(row=10, column=2, sticky="s")
 
 
     def update_plots(self):
@@ -231,45 +245,64 @@ class DiskModelGUI:
             entry.grid(row=i, column=1, padx=5, sticky="e")
             setattr(self, variable_names[i], entry)
 
-    # Create a frame for inner disk parameters
-    def create_inner_disk_frame(self,parent_frame):
-        inner_disk_frame = tk.LabelFrame(parent_frame, text="Inner Disk Parameters")
+    def create_inner_disk_frame(self, parent_frame):
+        # Frame to hold the title and checkbox
+        inner_disk_frame = tk.LabelFrame(parent_frame, text="Inner Disk Values")
         inner_disk_frame.grid(row=2, column=0, padx=5, pady=5, sticky="w")
 
-        # Input labels and entries
+        # Checkbox 
+        self.inner_disk_enabled = tk.BooleanVar(value=True)
+        inner_disk_checkbox = tk.Checkbutton(inner_disk_frame, variable=self.inner_disk_enabled)
+        inner_disk_checkbox.pack(side="left") 
+
+        # LabelFrame for the actual parameters
+        inner_params_frame = tk.Frame(inner_disk_frame) # Empty text for LabelFrame
+        inner_params_frame.pack(side="left", fill="both", expand=True) 
+
+        # Input labels and entries (the rest of your existing code) 
         labels = ["Peak Surface Denisty [g/cm^2]", "Ring distance [au]", "Radial width [au]","Inclination [deg]","Rotation [deg]"]
         variable_names = ["sigmad0", "ringcau1", "ringwau1","elevD","rotaD1",]
         defaults = [0.1, 7, 1, 20, 300]
 
         for i, label in enumerate(labels):
-            tk.Label(inner_disk_frame, text=label).grid(row=i, column=0, sticky="w")
-            entry = tk.Entry(inner_disk_frame, width=12, justify='center')
+            tk.Label(inner_params_frame, text=label).grid(row=i, column=0, sticky="w")
+            entry = tk.Entry(inner_params_frame, width=12, justify='center')
             entry.insert(0, str(defaults[i]))
             entry.grid(row=i, column=1, padx=5,sticky="e")
             setattr(self, variable_names[i], entry)  # Store the Entry widget
 
     # Create a frame for outer disk parameters        
     def create_outer_disk_frame(self,parent_frame):
-        outer_disk_frame = tk.LabelFrame(parent_frame, text="Outer Disk Parameters")
+        # Frame to hold the title and checkbox
+        outer_disk_frame = tk.LabelFrame(parent_frame, text="Outer Disk Values")
         outer_disk_frame.grid(row=3, column=0, padx=5, pady=5, sticky="w")
 
+        # Checkbox 
+        self.outer_disk_enabled = tk.BooleanVar(value=True)
+        outer_disk_checkbox = tk.Checkbutton(outer_disk_frame, variable=self.outer_disk_enabled)
+        outer_disk_checkbox.pack(side="left") 
+
+        # LabelFrame for the actual parameters
+        outer_params_frame = tk.Frame(outer_disk_frame) # Empty text for LabelFrame
+        outer_params_frame.pack(side="left", fill="both", expand=True)
+
         # Input labels and entries (example parameters)
-        labels = ["Peak Surface Density [g/cm^2]","Ring distance [au]","Radial width [au]","Rotation [deg]","Asymmetry","Azimuthal width","Ellipse","Semi-major axis [au]","Eccentricity "]
-        variable_names = ["sigmadc2","ringcau2","ringwau2","rotaD2","OUTERASSYMETRIC","azimwid2","ELLIPSE","a_semi","e"]
-        defaults = [10, 88, 9, 95, True, 0.75, True, 88, 0.2]
+        labels = ["Peak Surface Density [g/cm^2]","Ring distance [au]","Radial width [au]","Inclination [deg]","Rotation [deg]","Asymmetry","Azimuthal width","Ellipse","Semi-major axis [au]","Eccentricity "]
+        variable_names = ["sigmadc2","ringcau2","ringwau2","elevD2","rotaD2","OUTERASSYMETRIC","azimwid2","ELLIPSE","a_semi","e"]
+        defaults = [10, 88, 9, 0, 95, True, 0.75, True, 88, 0.2]
 
         for i, label in enumerate(labels):
-            tk.Label(outer_disk_frame, text=label).grid(row=i, column=0, sticky="w")
+            tk.Label(outer_params_frame, text=label).grid(row=i, column=0, sticky="w")
 
             if label in ["Asymmetry", "Ellipse"]:
                 # Create a checkbox for boolean parameter
                 var = tk.BooleanVar(value=defaults[i])
-                checkbutton = tk.Checkbutton(outer_disk_frame, variable=var)
+                checkbutton = tk.Checkbutton(outer_params_frame, variable=var)
                 checkbutton.grid(row=i, column=1, padx=5)
                 setattr(self, variable_names[i], var)  # Store the BooleanVar 
             else:
                 # Create an entry for other parameters
-                entry = tk.Entry(outer_disk_frame, width=12, justify='center')
+                entry = tk.Entry(outer_params_frame, width=12, justify='center')
                 entry.insert(0, str(defaults[i]))
                 entry.grid(row=i, column=1, padx=5, sticky="e")
                 setattr(self, variable_names[i], entry)  # Store the Entry widget
@@ -321,6 +354,7 @@ class DiskModelGUI:
         sigmadc2  = float(self.sigmadc2.get())
         ringcau2  = float(self.ringcau2.get())
         ringwau2  = float(self.ringwau2.get())
+        elevD2    = float(self.elevD2.get())
         rotaD2    = float(self.rotaD2.get())
 
         OUTERASSYMETRIC = bool(self.OUTERASSYMETRIC.get())
@@ -388,10 +422,26 @@ class DiskModelGUI:
         newpp       = np.where(newpp < 0, newpp + 2 * pi, newpp) #shifting atan2 domain from [-pi,pi] towards [0,2pi]
 
 
+        "Calculating each component of the coordinates (r, phi, theta) of the rotated frame that belongs to the outer disk"
+
+
+        elevR2    = np.deg2rad(elevD2)        # Elevation of the disk in RAD
+        newr2     = r
+        coselev2  = (-np.sin(tt)*np.sin(pp)*np.sin(elevR2))+(np.cos(tt)*np.cos(elevR2))
+
+        newtt2       = np.arccos(coselev2)
+        sinnewpp2    = np.sin(tt)*np.sin(pp)*np.cos(elevR2)+np.cos(tt)*np.sin(elevR2)/(np.sqrt(1-coselev2**2))
+        sinnewtt2    = np.sin(newtt2)
+        cosnewpp2    = (np.sin(tt)*np.cos(pp))/sinnewtt2
+        newpp2       = np.arctan2(sinnewpp2,cosnewpp2)
+        newpp2       = np.where(newpp2 < 0, newpp2 + 2 * pi, newpp2) #shifting atan2 domain from [-pi,pi] towards [0,2pi]
+
+
         '''Rearranging the assymmetrical shape'''
 
 
         dphi  =  newpp - azipos1
+        dphi2 =  newpp2 - azipos1
 
         # dphi = np.where(dphi >= pi, dphi + 2*pi, dphi)
         # dphi = np.where(dphi < 0, dphi + 2*pi, dphi)
@@ -457,22 +507,26 @@ class DiskModelGUI:
         ringw2  = ringwau2*au                   # Radial width of the ring, Convert [au] to [cm]
 
         if OUTERASSYMETRIC==True:
-            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
+            sigmad2   = sigmadc2  * np.exp(-((newr2-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-(((dphi2)**2)/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
         else:
-            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0)                                     # radial surface density profile for ring [g/cm^2]
+            sigmad2   = sigmadc2  * np.exp(-((newr2-ringc2_mod)**2/ringw2**2)/2.0)                                     # radial surface density profile for ring [g/cm^2]
 
-        zr        = np.pi/2.e0 - tt                                                      
+        newzr2        = np.pi/2.e0 - newtt2                                                     
 
 
-        rhod2     = ( sigmad2 / (np.sqrt(2.e0*np.pi)*hp2) ) * np.exp(-(zr**2/hpr2**2)/2.e0)                                   # volume density
+        rhod2     = ( sigmad2 / (np.sqrt(2.e0*np.pi)*hp2) ) * np.exp(-(newzr2**2/hpr2**2)/2.e0)                                   # volume density
 
         rotation2 = int(rotaD2/(360/nphi))                                                                                  # only if assymetrical shape 
         rhod2     = np.roll(rhod2, rotation2, axis=2)
 
     
         ''' ADDING OUTER & INNER DISK '''
-
-        rhod     += rhod2
+        if self.outer_disk_enabled.get() == True and self.inner_disk_enabled.get() == True:
+            rhod     += rhod2
+        elif self.outer_disk_enabled.get() == True:
+            rhod     = rhod2
+        elif self.inner_disk_enabled.get() == True:
+            rhod     = rhod
 
         #
         # Write the grid file
@@ -571,7 +625,7 @@ class DiskModelGUI:
 
         # Getting input parameters for imaging data 
 
-        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau 258 incl {incl_value} posang {posang_value} nphot_scat 1000000 stokes setthreads 8'
+        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau {float(self.imagesize.get())} incl {incl_value} posang {posang_value} nphot_scat 1000000 stokes setthreads 8' # sizeau = Yang et al. 2023 --> 258 AU
         os.system(cmd)
 
         # incl_value = cmd.split("incl ")[1].split()[0]
@@ -665,6 +719,7 @@ class DiskModelGUI:
         sigmadc2  = float(self.sigmadc2.get())
         ringcau2  = float(self.ringcau2.get())
         ringwau2  = float(self.ringwau2.get())
+        elevD2    = float(self.elevD2.get())
         rotaD2    = float(self.rotaD2.get())
 
         OUTERASSYMETRIC = bool(self.OUTERASSYMETRIC.get())
@@ -731,11 +786,26 @@ class DiskModelGUI:
         newpp       = np.arctan2(sinnewpp,cosnewpp)
         newpp       = np.where(newpp < 0, newpp + 2 * pi, newpp) #shifting atan2 domain from [-pi,pi] towards [0,2pi]
 
+        "Calculating each component of the coordinates (r, phi, theta) of the rotated frame that belongs to the outer disk"
+
+
+        elevR2    = np.deg2rad(elevD2)        # Elevation of the disk in RAD
+        newr2     = r
+        coselev2  = (-np.sin(tt)*np.sin(pp)*np.sin(elevR2))+(np.cos(tt)*np.cos(elevR2))
+        
+        newtt2       = np.arccos(coselev2)
+        sinnewpp2    = np.sin(tt)*np.sin(pp)*np.cos(elevR2)+np.cos(tt)*np.sin(elevR2)/(np.sqrt(1-coselev2**2))
+        sinnewtt2    = np.sin(newtt2)
+        cosnewpp2    = (np.sin(tt)*np.cos(pp))/sinnewtt2
+        newpp2       = np.arctan2(sinnewpp2,cosnewpp2)
+        newpp2       = np.where(newpp2 < 0, newpp2 + 2 * pi, newpp2) #shifting atan2 domain from [-pi,pi] towards [0,2pi]
+
 
         '''Rearranging the assymmetrical shape'''
 
 
         dphi  =  newpp - azipos1
+        dphi2 =  newpp2 - azipos1
 
         # dphi = np.where(dphi >= pi, dphi + 2*pi, dphi)
         # dphi = np.where(dphi < 0, dphi + 2*pi, dphi)
@@ -794,21 +864,21 @@ class DiskModelGUI:
         ringc2 = ringcau2*au                      # Radius of the ring, Convert [au] to [cm] 
 
         if ELLIPSE == True:
-            ringc2_mod = a_semi*(1-e**2)/(1-e*np.cos(pp))
+            ringc2_mod = a_semi*(1-e**2)/(1-e*np.cos(newpp2))
         else:
             ringc2_mod = ringc2
 
         ringw2  = ringwau2*au                   # Radial width of the ring, Convert [au] to [cm]
 
         if OUTERASSYMETRIC==True:
-            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((pp-pi)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
+            sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0) * np.exp(-((dphi2)**2/azimwid2**2)/2.0) # radial & azimuthal surface density profile for ring [g/cm^2]
         else:
             sigmad2   = sigmadc2  * np.exp(-((newr-ringc2_mod)**2/ringw2**2)/2.0)                                     # radial surface density profile for ring [g/cm^2]
 
-        zr        = np.pi/2.e0 - tt                                                      
+        newzr2        = np.pi/2.e0 - newtt2                                                      
 
 
-        rhod2     = ( sigmad2 / (np.sqrt(2.e0*np.pi)*hp2) ) * np.exp(-(zr**2/hpr2**2)/2.e0)                                   # volume density
+        rhod2     = ( sigmad2 / (np.sqrt(2.e0*np.pi)*hp2) ) * np.exp(-(newzr2**2/hpr2**2)/2.e0)                                   # volume density
 
         rotation2 = int(rotaD2/(360/nphi))                                                                                  # only if assymetrical shape 
         rhod2     = np.roll(rhod2, rotation2, axis=2)
@@ -816,8 +886,12 @@ class DiskModelGUI:
     
         ''' ADDING OUTER & INNER DISK '''
 
-        rhod     += rhod2
-
+        if self.outer_disk_enabled.get() == True and self.inner_disk_enabled.get() == True:
+            rhod     += rhod2
+        elif self.outer_disk_enabled.get() == True:
+            rhod     = rhod2
+        elif self.inner_disk_enabled.get() == True:
+            rhod     = rhod
         #
         # Write the grid file
         #
@@ -915,7 +989,7 @@ class DiskModelGUI:
 
         # Getting input parameters for imaging data 
 
-        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau 356 incl {incl_value} posang {posang_value}'
+        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau {float(self.imagesize.get())} incl {incl_value} posang {posang_value}'  # sizeau = Follette et al. 2015 --> 365 AU
         os.system(cmd)
 
         fnameread      = 'image.out'
@@ -1067,36 +1141,39 @@ class DiskModelGUI:
             title          = f'PI-Image of {float(wavelength)}$\mu m$' 
 
             simu_data = data[:,:].T
-            simu_data = np.where(simu_data<10**(-15),10**-15 , simu_data.copy())   # cutting-off noise
+            # simu_data = np.where(simu_data<10**(-15),10**-15 , simu_data.copy())   # cutting-off noise
 
             if self.mask_var.get() == 1:
-                simu_data = tools.circular_mask(simu_data, radius=23)  # masking image only if checkbox is checked
+                simu_data = tools.circular_mask(simu_data, radius=float(self.mask_radius.get()))  # masking image only if checkbox is checked
                 nor_simu_data = simu_data / np.max(simu_data, axis=1)[100]     # normalization of image data 
-            else:
-                test = simu_data.copy()
-                test[100, 80:120] = np.nan
-                nor_simu_data = simu_data / np.nanmax(test, axis=1)[100]     # normalization of image data  
+                norm = None
+            elif self.mask_var.get() == 0:
+                nor_simu_data = simu_data
+                intmin        =  np.max(nor_simu_data)*0.001       # 0.1% of the maximum value
+                intmax        =  np.max(nor_simu_data)            # maximum value
+                norm=LogNorm(vmin=intmin, vmax=intmax)
 
 
             fig = plt.figure(figsize=(8, 6))
             ax = fig.add_axes([0.1, 0.11, 0.8, 0.8])  # Adjust the position of the plot within the figure
-            im = ax.imshow(nor_simu_data,interpolation=interpolation,cmap=cmap,norm=None,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
+            im = ax.imshow(nor_simu_data,interpolation=interpolation,cmap=cmap,norm=norm,origin='lower',extent= [-size/2.0,size/2.0,-size/2.0,size/2.0])
             ax.tick_params(axis='both', which='major', labelsize=8)
-            ax.set_title(title, fontsize=10)
+            ax.set_title(title, fontsize=15)
             ax.set_xlabel('X [AU]', fontsize=8)
             ax.set_ylabel('Y [AU]', fontsize=8)
             ax.text(x=0, y=-120, s=f"Inclination: {inc}°, Position Angle: {pos}°", fontsize=7, bbox=dict(facecolor='white', alpha=1), ha='center')
-
+        
             plt.subplots_adjust(right=0.9)
 
             cbar=plt.colorbar(im, location='right')
             cbar.ax.tick_params(labelsize=8)
+            if self.mask_var.get() == 0:
+                cbar.ax.set_title('Jy/beam', fontsize=10, y=-0.10)  # Label below the colorbar
 
             if self.track_var.get() == 1:
                 tools.trace_outer_ring(nor_simu_data,ax=None, grid_x= 2, grid_y=0,int_threshold=float(self.threshold_var.get()))
         
         else:                                   # Thermal emission
-            from matplotlib.colors import LogNorm
             intmax         =  np.max(data)            # maximum value
             intmin         =  np.max(data)*0.01       # 1% of the maximum value
             interpolation  = 'bicubic'
@@ -1115,9 +1192,9 @@ class DiskModelGUI:
             ax.set_xlabel('X [AU]', fontsize=8)
             ax.set_ylabel('Y [AU]', fontsize=8)
             ax.text(x=0, y=-120, s=f"Inclination: {inc}°, Position Angle: {pos}°", fontsize=7, bbox=dict(facecolor='white', alpha=1), ha='center')
-            cbar=plt.colorbar(im, location='right',label='Jy/beam')
+            cbar=plt.colorbar(im, location='right')
             cbar.ax.tick_params(labelsize=8)
-            cbar.ax.set_title('Jy/beam', fontsize=7, y=-0.10)  # Label below the colorbar
+            cbar.ax.set_title('Jy/beam', fontsize=10, y=-0.10)  # Label below the colorbar
             # tools.trace_outer_ring(simu_data_org,ax=None, grid_x= 2, grid_y=0,int_threshold=0.2)  
 
         # Place plot in the GUI

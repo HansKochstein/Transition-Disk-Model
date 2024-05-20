@@ -89,7 +89,7 @@ def trace_outer_ring(intensity_data, degrees_step=10, ax=None, grid_x=None, grid
             max_intensity_points.append((max_y, max_x))
 
     max_y, max_x = zip(*max_intensity_points)
-    if ax==None:
+    if ax is None:
         plt.scatter([(x-100)*1.23 for x in max_x], [(y-100)*1.23 for y in max_y], 
                                  color=color, s=30, marker='+')
     else:
