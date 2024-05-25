@@ -606,13 +606,15 @@ class DiskModelGUI:
             f.write('============================================================================\n')
             f.write('10              Way in which this dust species is read\n')#[MODIFIED] opacity with scattering information
             f.write('0               0=Thermal grain\n')
-            f.write('pyrmg70         Extension of name of dustkappa_***.inp file\n')#[MODIFIED] opacity with scattering information
+            f.write('pyrmg7015         Extension of name of dustkappa_***.inp file\n')#[MODIFIED] opacity with scattering information
             f.write('----------------------------------------------------------------------------\n')
+
         #
         # Write the radmc3d.inp control file
         #
         with open('radmc3d.inp','w+') as f:
             f.write('nphot = %d\n'%(nphot))
+            f.write('nphot_scat = %d\n'%(nphot))
             f.write('scattering_mode_max = 5\n') #[MODIFIED] radiative transfer with scattring
             f.write('iranfreqmode = 1\n')
 
@@ -968,16 +970,19 @@ class DiskModelGUI:
             f.write('2               Format number of this file\n')
             f.write('1               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('1               Way in which this dust species is read\n')
+            f.write('10              Way in which this dust species is read\n')
             f.write('0               0=Thermal grain\n')
-            f.write('pyrmg701000         Extension of name of dustkappa_***.inp file\n')
+            f.write('pyrmg701000     Extension of name of dustkappa_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
+
+
         #
         # Write the radmc3d.inp control file
         #
         with open('radmc3d.inp','w+') as f:
             f.write('nphot = %d\n'%(nphot))
-            f.write('scattering_mode_max = 1\n') 
+            f.write('nphot_scat = %d\n'%(nphot))
+            f.write('scattering_mode_max = 5\n')
             f.write('iranfreqmode = 1\n')
 
         self.loading_label.config(text="Simulation running... 💫, don't interrupt")

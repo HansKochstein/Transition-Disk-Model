@@ -67,7 +67,7 @@ def circular_mask(data_array, radius):
     return new_data_array
 
 
-def trace_outer_ring(intensity_data, degrees_step=10, ax=None, grid_x=None, grid_y=None, int_threshold=0.1, color = 'white'):
+def trace_outer_ring(intensity_data, degrees_step=10, ax=None, grid_x=None, grid_y=None, int_threshold=0.1, color = 'white', auppixel=1.23, label = ''):    
     center_y, center_x = intensity_data.shape[0] // 2, intensity_data.shape[1] // 2
     angles = np.arange(0, 360, degrees_step)
 
@@ -90,11 +90,11 @@ def trace_outer_ring(intensity_data, degrees_step=10, ax=None, grid_x=None, grid
 
     max_y, max_x = zip(*max_intensity_points)
     if ax is None:
-        plt.scatter([(x-100)*1.23 for x in max_x], [(y-100)*1.23 for y in max_y], 
+        plt.scatter([(x-100)*auppixel for x in max_x], [(y-100)*auppixel for y in max_y], 
                                  color=color, s=30, marker='+')
     else:
-        ax[grid_x, grid_y].scatter([(x-100)*1.23 for x in max_x], [(y-100)*1.23 for y in max_y], 
-                                 color=color, s=30, marker='+')
+        ax[grid_x, grid_y].scatter([(x-100)*auppixel for x in max_x], [(y-100)*auppixel for y in max_y], 
+                                 color=color, s=30, marker='+', label = label)
     return max_intensity_points
 
 # au  = 1.49598e13     # Astronomical Unit       [cm]
