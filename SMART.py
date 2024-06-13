@@ -355,7 +355,7 @@ class DiskModelGUI:
         ringcau2  = float(self.ringcau2.get())
         ringwau2  = float(self.ringwau2.get())
         elevD2    = float(self.elevD2.get())
-        rotaD2    = float(self.rotaD2.get())
+        rotaD2    = float(self.rotaD2.get()) 
 
         OUTERASSYMETRIC = bool(self.OUTERASSYMETRIC.get())
         azimwid2  = float(self.azimwid2.get())
@@ -627,7 +627,7 @@ class DiskModelGUI:
 
         # Getting input parameters for imaging data 
 
-        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau {float(self.imagesize.get())} incl {incl_value} posang {posang_value} nphot_scat 1000000 stokes setthreads 8' # sizeau = Yang et al. 2023 --> 258 AU
+        cmd = f'radmc3d image lambda {wavelength} npix 200 sizeau {float(self.imagesize.get())} incl {incl_value} posang {posang_value} nphot_scat 3000000 stokes setthreads 8' # sizeau = Yang et al. 2023 --> 258 AU
         os.system(cmd)
 
         # incl_value = cmd.split("incl ")[1].split()[0]
@@ -710,7 +710,7 @@ class DiskModelGUI:
         sigmad0   = float(self.sigmad0.get())
         ringcau1  = float(self.ringcau1.get())
         elevD     = float(self.elevD.get())
-        rotaD1    = float(self.rotaD1.get())
+        rotaD1    = float(self.rotaD1.get()) - 90 # Subtract 90 to convert to the correct angle
 
         #TESTING
         INNERASSYMETRIC = False 
@@ -970,7 +970,7 @@ class DiskModelGUI:
             f.write('2               Format number of this file\n')
             f.write('1               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('10              Way in which this dust species is read\n')
+            f.write('1               Way in which this dust species is read\n')
             f.write('0               0=Thermal grain\n')
             f.write('pyrmg701000     Extension of name of dustkappa_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
